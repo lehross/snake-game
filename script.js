@@ -11,6 +11,9 @@ let food = {
     x: Math.floor(Math.random() * 15 + 1) * box,
     y: Math.floor(Math.random() * 15 + 1) * box
 }
+let tempo = 1000; //1 segundo
+let cron;
+let pontos = 0;
 
 //Inicia o canvas
 function criarBG() {
@@ -36,6 +39,39 @@ function drawFood() {
     context.fillRect(food.x, food.y, box, box);
 }
 
+//Cronometro
+let hh = 0;
+let mm = 0;
+let ss = 0;
+
+function start() {
+    cron = setInterval(timer(), tempo);
+}
+
+function stop() {
+    clearInterval(cron);
+}
+
+function timer() {
+    ss++;
+
+    if (ss == 59) {
+        ss = 0;
+        mm++;
+
+        if (mm == 59) {
+            mm = 0;
+            hh++;
+        }
+    }
+
+    let format = (hh < 10 ? '0' + hh : hh) + ':' + (mm < 10 ? '0' + mm : mm) + ':' + (ss < 10 ? '0' + ss : ss);
+
+    document.getElementById('counter').innerText = format;
+
+    return format;
+}
+
 //Evento para movimentação
 document.addEventListener('keydown', update);
 
@@ -54,11 +90,16 @@ function iniciarJogo() {
     if (snake[0].y > 15 * box && direction == "down") snake[0].y = 0;
     if (snake[0].y < 0 && direction == "up") snake[0].y = 16 * box;
 
+    //Inicial cronômetro
+    start();
+
     //Condição de fim de jogo
     for(i = 1; i < snake.length; i++) {
         if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
             clearInterval(jogo);
-            alert("Game Over =(");
+            //Parar cronômetro
+            stop();
+            alert("Game Over =(\n" + pontos + " pontos em " + timer());
         }
     }
 
@@ -83,6 +124,8 @@ function iniciarJogo() {
     } else {
         food.x = Math.floor(Math.random() * 15 + 1) * box;
         food.y = Math.floor(Math.random() * 15 + 1) * box;
+        pontos += 1;
+        document.getElementById('pontuacao').innerHTML = pontos
     }
 
     let newHead = {
